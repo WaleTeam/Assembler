@@ -9,7 +9,7 @@ int main(int argc, char *argv[], char **envp) {
 
 	emu_init();
 
-	emu_size_t bytes_read = emu_read(emu_stdin, buffer, sizeof(buffer));
+	emu_size_t bytes_read = emu_read(emu_stdin, buffer, sizeof(buffer) - sizeof(char));
 
 	buffer[bytes_read] = 0;
 
@@ -17,5 +17,5 @@ int main(int argc, char *argv[], char **envp) {
 	emu_write(emu_stdout, buffer, bytes_read);
 	emu_write(emu_stdout, &new_line, sizeof(char));
 
-	// printf("you entered: %s\n", buffer);
+	return 0;
 }
