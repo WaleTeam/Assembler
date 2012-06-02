@@ -1,0 +1,6 @@
+#ifndef _PROJECT_AS_EMU_H_INCLUDED_
+#define _PROJECT_AS_EMU_H_INCLUDED_
+
+
+
+#endif //_PROJECT_AS_EMU_H_INCLUDED_
