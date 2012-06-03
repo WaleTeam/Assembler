@@ -33,10 +33,14 @@ int is_delimeter(char character) {
 }
 
 int is_number(char character) {
-	
+
 }
 
 int is_letter(char character) {
+
+}
+
+int is_string_delimeter(char character) {
 
 }
 
@@ -48,6 +52,10 @@ void number_handler(struct Tokenizer_state *self) {
 
 }
 
+void string_handler(struct Tokenizer_state *self) {
+
+}
+
 void root_handler(struct Tokenizer_state *self) {
 
 	char currentChar = self->buffer[self->bufferIndex];
@@ -56,9 +64,12 @@ void root_handler(struct Tokenizer_state *self) {
 		if(is_letter(currentChar)) {
 
 			keyword_handler(self);
-		} else if(is_number) {
+		} else if(is_string_delimeter(currentChar)) {
 
 			number_handler(self);
+		} else if(is_number(currentChar)) {
+
+			string_handler(self);
 		}
 	}
 
