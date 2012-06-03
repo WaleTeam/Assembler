@@ -3,37 +3,50 @@
 
 #define get_current_char(self) self->buffer[self->bufferIndex]
 
-void root_handler(struct Tokenizer_state *self);
+void root_handler(struct Tokenizer *self);
 
-void init_token(struct Token *self) {
-
-}
-
-void init_tokenizer(struct Tokenizer_state *self, Token_fill_buffer fill_buffer, Token_handler token_handler) {
+void init_tokenizer(struct Tokenizer *self, Token_fill_buffer fill_buffer, Token_handler token_handler) {
 	emu_memset(self->buffer, 0, sizeof(char [kTokenStateBufferSize]));
 
 	self->bufferIndex = 0;
 	self->errorState = TokenizerErrorSateNone;
-	self->tokenizerState = TokenizerStateInitial;
+	self->state = TokenizerStateInitial;
 
 	self->token_handler = token_handler;
 	self->fill_buffer = fill_buffer;
 }
 
-void process_tokens(struct Tokenizer_state *self) {
+void refill_buffer(struct Tokenizer *self) {
+	
+	self->bufferIndex = 0;
+	emu_size_t bytes_read = self->fill_buffer(self->buffer, sizeof(char [kTokenStateBufferSize]));
+	self->bufferFillIndex = bytes_read;
+	
+	if(bytes_read == 0) {
+		self->state = TokenizerStateDone;
+	}	
+}
+
+void process_tokens(struct Tokenizer *self) {
+	refill_buffer(self);
 	root_handler(self);
 }
 
-char advance_chracter_pointer(struct Tokenizer_state *self) {
+char advance_chracter_pointer(struct Tokenizer *self) {
 
 	self->bufferIndex++;
 
-	if(self->bufferIndex == kTokenStateBufferSize) {
-		self->bufferIndex = 0;
-		self->fill_buffer(self->buffer, sizeof(char [kTokenStateBufferSize]));
+	if(self->bufferIndex == self->bufferFillIndex) {
+		refill_buffer(self);
 	}
 
 	return self->buffer[self->bufferIndex];
+}
+
+void init_token(struct Token *self, enum TokenType type) {
+	self->type = type;
+	self->stringIndex = 0;
+	emu_memset(self->string, 0, sizeof(self->string));
 }
 
 void store_character_in_token(struct Token *self, char character) {
@@ -41,11 +54,32 @@ void store_character_in_token(struct Token *self, char character) {
 	self->stringIndex++;
 }
 
-int is_delimeter(char character) {
+int is_delimeter(struct Tokenizer *self, char character) {
+
+	if(self->state == TokenizerStateDone) {
+		return 1;
+	}
+
 	switch(character) {
 		case ' ':
 		case ',':
 			return 1;
+		default:
+			return 0;
+	}
+}
+
+int is_string_delimeter(struct Tokenizer *self, char character) {
+
+	if(self->state == TokenizerStateDone) {
+		return 3;
+	}
+
+	switch(character) {
+		case '\'':
+			return 1;
+		case '"':
+			return 2;
 		default:
 			return 0;
 	}
@@ -71,17 +105,6 @@ int is_letter(char character) {
 	return 0;
 }
 
-int is_string_delimeter(char character) {
-	switch(character) {
-		case '\'':
-			return 1;
-		case '"':
-			return 2;
-		default:
-			return 0;
-	}
-}
-
 int is_structure_delimeter(char character) {
 	switch(character) {
 		case '.':
@@ -104,19 +127,16 @@ int is_escape(char character) {
 //########################################################################################
 // ### word tokenizer ###
 //########################################################################################
-void word_handler(struct Tokenizer_state *self) {
+void word_handler(struct Tokenizer *self) {
 	struct Token token;
-	int string_pointer = 0;
 
-	token.type = TokenTypeWord;
-	emu_memset(token.string, 0, sizeof(token.string));
+	init_token(&token, TokenTypeWord);
 
-	char currentChar = token.string[string_pointer] = get_current_char(self);
+	char currentChar = get_current_char(self);
 
 	while(is_letter(currentChar) || is_number(currentChar)) {
-		token.string[string_pointer] = currentChar;
-		string_pointer++;
 
+		store_character_in_token(&token, currentChar);
 		currentChar = advance_chracter_pointer(self);
 	}
 
@@ -126,19 +146,16 @@ void word_handler(struct Tokenizer_state *self) {
 //########################################################################################
 // ### number tokenizer ###
 //########################################################################################
-void number_handler(struct Tokenizer_state *self) {
+void number_handler(struct Tokenizer *self) {
 	struct Token token;
-	int string_pointer = 0;
+	
+	init_token(&token, TokenTypeNumber);
 
-	token.type = TokenTypeNumber;
-	emu_memset(token.string, 0, sizeof(token.string));
-
-	char currentChar = token.string[string_pointer] = get_current_char(self);
+	char currentChar = get_current_char(self);
 
 	while(is_number(currentChar)) {
-		token.string[string_pointer] = currentChar;
-		string_pointer++;
 
+		store_character_in_token(&token, currentChar);
 		currentChar = advance_chracter_pointer(self);
 	}
 
@@ -148,37 +165,37 @@ void number_handler(struct Tokenizer_state *self) {
 //########################################################################################
 // ### string tokenizer ###
 //########################################################################################
-void string_default_escape_handler(struct Tokenizer_state *self, struct Token *token) {
+void string_default_escape_handler(struct Tokenizer *self, struct Token *token) {
 
 }
 
-void string_number_esacpe_handler(struct Tokenizer_state *self, struct Token *token, char currentChar) {
+void string_number_esacpe_handler(struct Tokenizer *self, struct Token *token, char currentChar) {
 	//TODO: redirect to number parsing in this place
 }
 
-void string_esacpe_handler(struct Tokenizer_state *self, struct Token *token) {
+void string_esacpe_handler(struct Tokenizer *self, struct Token *token) {
 	char currentChar = advance_chracter_pointer(self);
 	int end_of_escape = 0;
 
-	if(currentChar == 'x' || is_number(currentChar)) {
-		string_number_esacpe_handler(self, token, currentChar);
-	} else if(currentChar == '"') {
-		store_character_in_token(token, currentChar);
-	} else {
-		string_default_escape_handler(self, token);
-	}
+	store_character_in_token(token, currentChar);
+
+	// if(currentChar == 'x' || is_number(currentChar)) {
+	// 	string_number_esacpe_handler(self, token, currentChar);
+	// } else if(currentChar == '"') {
+	// 	store_character_in_token(token, currentChar);
+	// } else {
+	// 	string_default_escape_handler(self, token);
+	// }
 }
 
-void string_handler(struct Tokenizer_state *self) {
+void string_handler(struct Tokenizer *self) {
 	struct Token token;
 
-	token.type = TokenTypeString;
-	token.stringIndex = 0;
-	emu_memset(token.string, 0, sizeof(token.string));
+	init_token(&token, TokenTypeString);
 
-	char currentChar = token.string[token.stringIndex] = advance_chracter_pointer(self);
+	char currentChar = advance_chracter_pointer(self);
 
-	while(! is_string_delimeter(currentChar)) {
+	while(! is_string_delimeter(self, currentChar)) {
 
 		if(is_escape(currentChar)) {
 			string_esacpe_handler(self, &token);
@@ -192,29 +209,45 @@ void string_handler(struct Tokenizer_state *self) {
 	self->token_handler(self, &token);
 }
 
-void structure_handler(struct Tokenizer_state *self) {
+void structure_handler(struct Tokenizer *self) {
+	struct Token token;
 
-}
-
-void root_handler(struct Tokenizer_state *self) {
+	init_token(&token, TokenTypeStructural);
 
 	char currentChar = get_current_char(self);
+	store_character_in_token(&token, currentChar);
 
-	if(! is_delimeter(currentChar)) {
-		if(is_letter(currentChar)) {
+	advance_chracter_pointer(self);
 
-			word_handler(self);
-		} else if(is_string_delimeter(currentChar)) {
+	self->token_handler(self, &token);
+}
 
-			string_handler(self);
-		} else if(is_number(currentChar)) {
+void root_handler(struct Tokenizer *self) {
 
-			number_handler(self);
-		} else if(is_structure_delimeter(currentChar)) {
+	while(! self->state == TokenizerStateDone) {
 
-			structure_handler(self);
+		char currentChar = get_current_char(self);
+
+		if(is_delimeter(self, currentChar)) {
+
+			currentChar = advance_chracter_pointer(self);
+		} else {
+			if(is_letter(currentChar)) {
+
+				word_handler(self);
+			} else if(is_string_delimeter(self, currentChar)) {
+
+				string_handler(self);
+			} else if(is_number(currentChar)) {
+
+				number_handler(self);
+			} else if(is_structure_delimeter(currentChar)) {
+
+				structure_handler(self);
+			} else {
+
+				currentChar = advance_chracter_pointer(self);
+			}
 		}
 	}
-
-	currentChar = advance_chracter_pointer(self);
 }

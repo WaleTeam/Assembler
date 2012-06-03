@@ -12,7 +12,8 @@ enum TokenizerErrorSate {
 };
 
 enum TokenizerState {
-	TokenizerStateInitial
+	TokenizerStateInitial,
+	TokenizerStateDone
 };
 
 enum TokenType {
@@ -23,18 +24,19 @@ enum TokenType {
 	TokenTypeStructural
 };
 
-struct Tokenizer_state;
+struct Tokenizer;
 struct Token;
 
-typedef void (*Token_fill_buffer)(void *buffer, emu_size_t buffer_size);
-typedef void (*Token_handler)(struct Tokenizer_state *tokenizer, struct Token *token);
+typedef emu_size_t (*Token_fill_buffer)(void *buffer, emu_size_t buffer_size);
+typedef void (*Token_handler)(struct Tokenizer *tokenizer, struct Token *token);
 
-struct Tokenizer_state {
+struct Tokenizer {
 	enum TokenizerErrorSate errorState;
-	enum TokenizerState tokenizerState;
+	enum TokenizerState state;
 
 	char buffer[kTokenStateBufferSize];
 	int bufferIndex;
+	int bufferFillIndex;
 
 	Token_handler token_handler;
 	Token_fill_buffer fill_buffer;
@@ -46,7 +48,7 @@ struct Token {
 	int stringIndex;
 };
 
-void init_tokenizer(struct Tokenizer_state *self, Token_fill_buffer fill_buffer, Token_handler token_handler);
-void process_tokens(struct Tokenizer_state *self);
+void init_tokenizer(struct Tokenizer *self, Token_fill_buffer fill_buffer, Token_handler token_handler);
+void process_tokens(struct Tokenizer *self);
 
 #endif //_PROJECT_AS_TOKENIZER_H_INCLUDED_
