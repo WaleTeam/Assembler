@@ -206,6 +206,8 @@ void string_handler(struct Tokenizer *self) {
 		currentChar = advance_chracter_pointer(self);
 	}
 
+	advance_chracter_pointer(self);
+
 	self->token_handler(self, &token);
 }
 
