@@ -195,8 +195,18 @@ logo:
 '8888P   Y8888 888  888 888 Y8b.     Y88b. .d88P Y88b  d88P   ', 0x00
 '888P     Y888 "Y888888 888  "Y8888   "Y88888P"   "Y8888P"    ', 0x00
 " "
-.word , 0x00
 
+os_config:
+'''
+{
+	"os": {
+		"version": "0.1",
+		"copyright": "waleos team"
+	}
+}
+'''
+
+.word , 0x00
 
 label1: "string"
 label2:
