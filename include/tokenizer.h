@@ -23,4 +23,9 @@ struct tokenizer_state {
 	int currentTokenIndex;
 };
 
+struct token {
+	int tokenType;
+	char tokenString;
+};
+
 #endif //_PROJECT_AS_TOKENIZER_H_INCLUDED_

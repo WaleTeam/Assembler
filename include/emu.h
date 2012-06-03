@@ -9,7 +9,7 @@ emu_ssize_t emu_read(int fh, void *buffer, emu_size_t size);
 emu_ssize_t emu_write(int fh, const void *buffer, emu_size_t size);
 
 void *emu_memcpy(void *dest, const void *src, emu_size_t n);
-void *emu_memset( void * ptr, int value, size_t num );
+void *emu_memset( void * ptr, int value, emu_size_t num );
 
 
 extern int emu_stdin;

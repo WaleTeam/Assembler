@@ -13,6 +13,14 @@ int is_number(char character) {
 
 }
 
+void identify_word(struct tokenizer_state *tokenizer) {
+
+}
+
+void identify_number(struct tokenizer_state *tokenizer) {
+
+}
+
 void init_tokenizer(struct tokenizer_state *tokenizer) {
 	emu_memset(tokenizer->string, 0, kMaxLineLength);
 	emu_memset(tokenizer->currentToken, 0, kMaxTokenLength);
@@ -33,19 +41,18 @@ void find_next_token(struct tokenizer_state *tokenizer) {
 
 		if(! is_delimeter(currentChar)) {
 
-			if(currentTokenIndex > kMaxTokenLength) {
+			if(tokenizer->currentTokenIndex > kMaxTokenLength) {
 				tokenizer->errorState = kErrorTokenizerTokenLengthExceeded;
 				return;
 			}
 
 			if(tokenizer->tokenizerState == kTokenizerStateDelimeterSpace) {
 				tokenizer->tokenizerState = kTokenizerStateTokenStartFound;
-				tokenizer->currentToken[currentTokenIndex] = currentChar;
-				currentTokenIndex++;
+				tokenizer->currentToken[tokenizer->currentTokenIndex] = currentChar;
+				tokenizer->currentTokenIndex++;
 
-			} else (tokenizer->tokenizerState == kTokenizerStateTokenStartFound) {
-				tokenFound = 2;
-				tokenizer->currentToken[currentTokenIndex] = 0;
+			} else { //(tokenizer->tokenizerState == kTokenizerStateTokenStartFound) {
+				tokenizer->currentToken[tokenizer->currentTokenIndex] = 0;
 				tokenizer->tokenizerState = kTokenizerStateTokenEndFound;
 
 			}
