@@ -1,24 +1,30 @@
 #include "emu.h"
 #include "tokenizer.h"
 
+#define get_current_char(self) self->buffer[self->bufferIndex]
+
 void root_handler(struct Tokenizer_state *self);
+
+void init_token(struct Token *self) {
+
+}
 
 void init_tokenizer(struct Tokenizer_state *self, Token_fill_buffer fill_buffer, Token_handler token_handler) {
 	emu_memset(self->buffer, 0, sizeof(char [kTokenStateBufferSize]));
 
 	self->bufferIndex = 0;
-	self->errorState = kErrorTokenizerNone;
-	self->tokenizerState = kTokenizerSateInitial;
+	self->errorState = TokenizerErrorSateNone;
+	self->tokenizerState = TokenizerStateInitial;
 
 	self->token_handler = token_handler;
 	self->fill_buffer = fill_buffer;
 }
 
-void process_tokens(struct Tokenizer_state *self, struct Token *token) {
+void process_tokens(struct Tokenizer_state *self) {
 	root_handler(self);
 }
 
-void advance_chracter_pointer(struct Tokenizer_state *self) {
+char advance_chracter_pointer(struct Tokenizer_state *self) {
 
 	self->bufferIndex++;
 
@@ -26,6 +32,13 @@ void advance_chracter_pointer(struct Tokenizer_state *self) {
 		self->bufferIndex = 0;
 		self->fill_buffer(self->buffer, sizeof(char [kTokenStateBufferSize]));
 	}
+
+	return self->buffer[self->bufferIndex];
+}
+
+void store_character_in_token(struct Token *self, char character) {
+	self->string[self->stringIndex] = character;
+	self->stringIndex++;
 }
 
 int is_delimeter(char character) {
@@ -48,16 +61,87 @@ int is_structure_delimeter(char character) {
 
 }
 
-void keyword_handler(struct Tokenizer_state *self) {
+int is_escape(char character) {
 
+}
+
+void word_handler(struct Tokenizer_state *self) {
+	struct Token token;
+	int string_pointer = 0;
+
+	token.type = TokenTypeWord;
+	emu_memset(token.string, 0, sizeof(token.string));
+
+	char currentChar = token.string[string_pointer] = get_current_char(self);
+
+	while(is_letter(currentChar) || is_number(currentChar)) {
+		token.string[string_pointer] = currentChar;
+		string_pointer++;
+
+		currentChar = advance_chracter_pointer(self);
+	}
+
+	self->token_handler(self, &token);
 }
 
 void number_handler(struct Tokenizer_state *self) {
+	struct Token token;
+	int string_pointer = 0;
+
+	token.type = TokenTypeNumber;
+	emu_memset(token.string, 0, sizeof(token.string));
+
+	char currentChar = token.string[string_pointer] = get_current_char(self);
+
+	while(is_number(currentChar)) {
+		token.string[string_pointer] = currentChar;
+		string_pointer++;
+
+		currentChar = advance_chracter_pointer(self);
+	}
+
+	self->token_handler(self, &token);
+}
+
+void string_hexnumber_esacpe_handler(struct Tokenizer_state *self, struct Token *token) {
 
 }
 
-void string_handler(struct Tokenizer_state *self) {
+void string_esacpe_handler(struct Tokenizer_state *self, struct Token *token) {
+	char currentChar = advance_chracter_pointer(self);
+	int end_of_escape = 0;
 
+	switch(currentChar) {
+		case 'x':
+			string_hexnumber_esacpe_handler(self, token);
+			break;
+		case '"':
+			store_character_in_token(token, currentChar);
+			break;
+	}
+}
+
+void string_handler(struct Tokenizer_state *self) {
+	struct Token token;
+
+	token.type = TokenTypeString;
+	token.stringIndex = 0;
+	emu_memset(token.string, 0, sizeof(token.string));
+
+	char previousChar = token.string[token.stringIndex] = get_current_char(self); 
+	char currentChar = token.string[token.stringIndex] = advance_chracter_pointer(self);
+
+	while(! is_string_delimeter(currentChar)) {
+
+		if(is_escape(currentChar)) {
+			string_esacpe_handler(self, &token);
+		} else {
+			store_character_in_token(&token, currentChar);
+			currentChar = advance_chracter_pointer(self);
+		}
+	}
+
+	self->token_handler(self, &token);
 }
 
 void structure_handler(struct Tokenizer_state *self) {
@@ -66,23 +150,23 @@ void structure_handler(struct Tokenizer_state *self) {
 
 void root_handler(struct Tokenizer_state *self) {
 
-	char currentChar = self->buffer[self->bufferIndex];
+	char currentChar = get_current_char(self);
 
 	if(! is_delimeter(currentChar)) {
 		if(is_letter(currentChar)) {
 
-			keyword_handler(self);
+			word_handler(self);
 		} else if(is_string_delimeter(currentChar)) {
 
-			number_handler(self);
+			string_handler(self);
 		} else if(is_number(currentChar)) {
 
-			string_handler(self);
+			number_handler(self);
 		} else if(is_structure_delimeter(currentChar)) {
 
 			structure_handler(self);
 		}
 	}
 
-	advance_chracter_pointer(self);
+	currentChar = advance_chracter_pointer(self);
 }
