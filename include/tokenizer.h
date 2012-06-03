@@ -13,7 +13,7 @@
 #define kTokenizerStateTokenStartFound			3
 #define kTokenizerStateTokenEndFound			4
 
-struct tokenizer_state {
+struct Tokenizer_state {
 	int errorState;
 	int tokenizerState;
 
@@ -23,9 +23,11 @@ struct tokenizer_state {
 	int currentTokenIndex;
 };
 
-struct token {
+struct Token {
 	int tokenType;
 	char tokenString;
 };
+
+void process_next_token(struct Tokenizer_state *tokenizer, struct Token *token);
 
 #endif //_PROJECT_AS_TOKENIZER_H_INCLUDED_

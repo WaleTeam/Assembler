@@ -13,15 +13,15 @@ int is_number(char character) {
 
 }
 
-void identify_word(struct tokenizer_state *tokenizer) {
+void identify_word(struct Tokenizer_state *tokenizer, struct Token *token) {
 
 }
 
-void identify_number(struct tokenizer_state *tokenizer) {
+void identify_number(struct Tokenizer_state *tokenizer, struct Token *token) {
 
 }
 
-void init_tokenizer(struct tokenizer_state *tokenizer) {
+void init_tokenizer(struct Tokenizer_state *tokenizer) {
 	emu_memset(tokenizer->string, 0, kMaxLineLength);
 	emu_memset(tokenizer->currentToken, 0, kMaxTokenLength);
 	tokenizer->stringIndex = 0;
@@ -30,7 +30,7 @@ void init_tokenizer(struct tokenizer_state *tokenizer) {
 	tokenizer->tokenizerState = kTokenizerStateInitial;
 }
 
-void find_next_token(struct tokenizer_state *tokenizer) {
+void find_next_token(struct Tokenizer_state *tokenizer) {
 
 	if(tokenizer->tokenizerState == kTokenizerStateInitial) {
 		tokenizer->tokenizerState = kTokenizerStateDelimeterSpace;
@@ -51,7 +51,7 @@ void find_next_token(struct tokenizer_state *tokenizer) {
 				tokenizer->currentToken[tokenizer->currentTokenIndex] = currentChar;
 				tokenizer->currentTokenIndex++;
 
-			} else { //(tokenizer->tokenizerState == kTokenizerStateTokenStartFound) {
+			} else { //if (tokenizer->tokenizerState == kTokenizerStateTokenStartFound) {
 				tokenizer->currentToken[tokenizer->currentTokenIndex] = 0;
 				tokenizer->tokenizerState = kTokenizerStateTokenEndFound;
 
@@ -62,7 +62,7 @@ void find_next_token(struct tokenizer_state *tokenizer) {
 	tokenizer->tokenizerState = kTokenizerStateStringEndReached;
 }
 
-void process_tokens(struct tokenizer_state *tokenizer) {
+void process_next_token(struct Tokenizer_state *tokenizer, struct Token *token) {
 
 	find_next_token(tokenizer);
 
@@ -77,9 +77,9 @@ void process_tokens(struct tokenizer_state *tokenizer) {
 	char firstCharacter = tokenizer->currentToken[0];
 
 	if(is_letter(firstCharacter)) {
-		identify_word(tokenizer);
+		identify_word(tokenizer, token);
 	} else if(is_number) {
-		identify_number(tokenizer);
+		identify_number(tokenizer, token);
 	}
 
 	tokenizer->tokenizerState = kTokenizerStateDelimeterSpace;
