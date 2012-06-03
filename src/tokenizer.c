@@ -42,28 +42,65 @@ void store_character_in_token(struct Token *self, char character) {
 }
 
 int is_delimeter(char character) {
-	return 1;
+	switch(character) {
+		case ' ':
+		case ',':
+			return 1;
+		default:
+			return 0;
+	}
 }
 
 int is_number(char character) {
+	if(character >= '0' && character <= '9') {
+		return 1;
+	}
 
+	return 0;
 }
 
 int is_letter(char character) {
+	if(character >= 'a' && character <= 'z') {
+		return 1;
+	}
 
+	if(character >= 'A' && character <= 'Z') {
+		return 1;
+	}
+
+	return 0;
 }
 
 int is_string_delimeter(char character) {
-
+	switch(character) {
+		case '\'':
+			return 1;
+		case '"':
+			return 2;
+		default:
+			return 0;
+	}
 }
 
 int is_structure_delimeter(char character) {
-
+	switch(character) {
+		case '.':
+		case ':':
+		case ';':
+		case '(':
+		case ')':
+		case '=':
+		case '#':
+			return 1;
+		default:
+			return 0;
+	}
 }
 
 int is_escape(char character) {
-
+	return character == '\\';
 }
+
 //########################################################################################
 // ### word tokenizer ###
 //########################################################################################
@@ -139,7 +176,6 @@ void string_handler(struct Tokenizer_state *self) {
 	token.stringIndex = 0;
 	emu_memset(token.string, 0, sizeof(token.string));
 
-	char previousChar = token.string[token.stringIndex] = get_current_char(self); 
 	char currentChar = token.string[token.stringIndex] = advance_chracter_pointer(self);
 
 	while(! is_string_delimeter(currentChar)) {
