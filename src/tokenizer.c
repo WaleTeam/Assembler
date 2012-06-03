@@ -44,6 +44,10 @@ int is_string_delimeter(char character) {
 
 }
 
+int is_structure_delimeter(char character) {
+
+}
+
 void keyword_handler(struct Tokenizer_state *self) {
 
 }
@@ -53,6 +57,10 @@ void number_handler(struct Tokenizer_state *self) {
 }
 
 void string_handler(struct Tokenizer_state *self) {
+
+}
+
+void structure_handler(struct Tokenizer_state *self) {
 
 }
 
@@ -70,6 +78,9 @@ void root_handler(struct Tokenizer_state *self) {
 		} else if(is_number(currentChar)) {
 
 			string_handler(self);
+		} else if(is_structure_delimeter(currentChar)) {
+
+			structure_handler(self);
 		}
 	}
 
