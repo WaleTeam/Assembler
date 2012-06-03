@@ -1,86 +1,66 @@
 #include "emu.h"
 #include "tokenizer.h"
 
-int is_delimeter(char character) {
+void root_handler(struct Tokenizer_state *self);
 
+void init_tokenizer(struct Tokenizer_state *self, Token_fill_buffer fill_buffer, Token_handler token_handler) {
+	emu_memset(self->buffer, 0, sizeof(char [kTokenStateBufferSize]));
+
+	self->bufferIndex = 0;
+	self->errorState = kErrorTokenizerNone;
+	self->tokenizerState = kTokenizerSateInitial;
+
+	self->token_handler = token_handler;
+	self->fill_buffer = fill_buffer;
+}
+
+void process_tokens(struct Tokenizer_state *self, struct Token *token) {
+	root_handler(self);
+}
+
+void advance_chracter_pointer(struct Tokenizer_state *self) {
+
+	self->bufferIndex++;
+
+	if(self->bufferIndex == kTokenStateBufferSize) {
+		self->bufferIndex = 0;
+		self->fill_buffer(self->buffer, sizeof(char [kTokenStateBufferSize]));
+	}
+}
+
+int is_delimeter(char character) {
+	return 1;
+}
+
+int is_number(char character) {
+	
 }
 
 int is_letter(char character) {
 
 }
 
-int is_number(char character) {
+void keyword_handler(struct Tokenizer_state *self) {
 
 }
 
-void identify_word(struct Tokenizer_state *tokenizer, struct Token *token) {
+void number_handler(struct Tokenizer_state *self) {
 
 }
 
-void identify_number(struct Tokenizer_state *tokenizer, struct Token *token) {
+void root_handler(struct Tokenizer_state *self) {
 
-}
+	char currentChar = self->buffer[self->bufferIndex];
 
-void init_tokenizer(struct Tokenizer_state *tokenizer) {
-	emu_memset(tokenizer->string, 0, kMaxLineLength);
-	emu_memset(tokenizer->currentToken, 0, kMaxTokenLength);
-	tokenizer->stringIndex = 0;
-	tokenizer->currentTokenIndex = 0;
-	tokenizer->errorState = kErrorTokenizerNone;
-	tokenizer->tokenizerState = kTokenizerStateInitial;
-}
+	if(! is_delimeter(currentChar)) {
+		if(is_letter(currentChar)) {
 
-void find_next_token(struct Tokenizer_state *tokenizer) {
+			keyword_handler(self);
+		} else if(is_number) {
 
-	if(tokenizer->tokenizerState == kTokenizerStateInitial) {
-		tokenizer->tokenizerState = kTokenizerStateDelimeterSpace;
-	}
-
-	for(int i = tokenizer->stringIndex; i < kMaxLineLength; i++) {
-		char currentChar = tokenizer->string[i];
-
-		if(! is_delimeter(currentChar)) {
-
-			if(tokenizer->currentTokenIndex > kMaxTokenLength) {
-				tokenizer->errorState = kErrorTokenizerTokenLengthExceeded;
-				return;
-			}
-
-			if(tokenizer->tokenizerState == kTokenizerStateDelimeterSpace) {
-				tokenizer->tokenizerState = kTokenizerStateTokenStartFound;
-				tokenizer->currentToken[tokenizer->currentTokenIndex] = currentChar;
-				tokenizer->currentTokenIndex++;
-
-			} else { //if (tokenizer->tokenizerState == kTokenizerStateTokenStartFound) {
-				tokenizer->currentToken[tokenizer->currentTokenIndex] = 0;
-				tokenizer->tokenizerState = kTokenizerStateTokenEndFound;
-
-			}
+			number_handler(self);
 		}
 	}
 
-	tokenizer->tokenizerState = kTokenizerStateStringEndReached;
-}
-
-void process_next_token(struct Tokenizer_state *tokenizer, struct Token *token) {
-
-	find_next_token(tokenizer);
-
-	if(tokenizer->errorState != kErrorTokenizerNone) {
-		return;
-	}
-
-	if(tokenizer->tokenizerState == kTokenizerStateStringEndReached) {
-		return;
-	}
-
-	char firstCharacter = tokenizer->currentToken[0];
-
-	if(is_letter(firstCharacter)) {
-		identify_word(tokenizer, token);
-	} else if(is_number) {
-		identify_number(tokenizer, token);
-	}
-
-	tokenizer->tokenizerState = kTokenizerStateDelimeterSpace;
+	advance_chracter_pointer(self);
 }
