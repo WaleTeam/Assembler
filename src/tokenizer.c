@@ -64,7 +64,9 @@ int is_structure_delimeter(char character) {
 int is_escape(char character) {
 
 }
-
+//########################################################################################
+// ### word tokenizer ###
+//########################################################################################
 void word_handler(struct Tokenizer_state *self) {
 	struct Token token;
 	int string_pointer = 0;
@@ -84,6 +86,9 @@ void word_handler(struct Tokenizer_state *self) {
 	self->token_handler(self, &token);
 }
 
+//########################################################################################
+// ### number tokenizer ###
+//########################################################################################
 void number_handler(struct Tokenizer_state *self) {
 	struct Token token;
 	int string_pointer = 0;
@@ -103,21 +108,27 @@ void number_handler(struct Tokenizer_state *self) {
 	self->token_handler(self, &token);
 }
 
-void string_hexnumber_esacpe_handler(struct Tokenizer_state *self, struct Token *token) {
+//########################################################################################
+// ### string tokenizer ###
+//########################################################################################
+void string_default_escape_handler(struct Tokenizer_state *self, struct Token *token) {
 
+}
+
+void string_number_esacpe_handler(struct Tokenizer_state *self, struct Token *token, char currentChar) {
+	//TODO: redirect to number parsing in this place
 }
 
 void string_esacpe_handler(struct Tokenizer_state *self, struct Token *token) {
 	char currentChar = advance_chracter_pointer(self);
 	int end_of_escape = 0;
 
-	switch(currentChar) {
-		case 'x':
-			string_hexnumber_esacpe_handler(self, token);
-			break;
-		case '"':
-			store_character_in_token(token, currentChar);
-			break;
+	if(currentChar == 'x' || is_number(currentChar)) {
+		string_number_esacpe_handler(self, token, currentChar);
+	} else if(currentChar == '"') {
+		store_character_in_token(token, currentChar);
+	} else {
+		string_default_escape_handler(self, token);
 	}
 }
 
@@ -137,8 +148,9 @@ void string_handler(struct Tokenizer_state *self) {
 			string_esacpe_handler(self, &token);
 		} else {
 			store_character_in_token(&token, currentChar);
-			currentChar = advance_chracter_pointer(self);
 		}
+
+		currentChar = advance_chracter_pointer(self);
 	}
 
 	self->token_handler(self, &token);
