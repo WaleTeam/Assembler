@@ -28,3 +28,15 @@ void *emu_memcpy(void *dest, const void *src, emu_size_t n) {
 void *emu_memset(void *ptr, int value, emu_size_t num) {
 	return memset(ptr, value, num);
 }
+
+void *emu_malloc(emu_size_t size) {
+	return malloc(size);
+}
+
+void *emu_realloc(void *ptr, emu_size_t size) {
+	return realloc(ptr, size);
+}
+
+void emu_free(void *ptr) {
+	return free(ptr);
+}
