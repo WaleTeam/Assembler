@@ -3,7 +3,7 @@
 void parser_init(struct Parser *self) {
 	self->origin = 0;
 	self->flags = 0;
-	self->currentNode = 0;
+	self->currentNode = parserNode_create(ParserNodeTypeNone);
 }
 
 void parser_parse_token(struct Parser *self, struct Token *token) {
@@ -16,9 +16,10 @@ struct ParserNode *parserNode_create(enum ParserNodeType type) {
 
 	switch(type) {
 		default:
-		case ParserNodeTypeNone:
 			return result;
-
+		case ParserNodeTypeNone:
+			result = emu_malloc(sizeof(struct ParserNode));
+			break;
 		case ParserNodeTypeStructuralOrigin:
 			result = emu_malloc(sizeof(struct ParserNodeStructuralOrigin));
 			break;
