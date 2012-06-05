@@ -22,12 +22,14 @@ struct Parser;
 struct ParserNode;
 
 typedef void (*NodeParser)(struct ParserNode *self, struct Parser *parser);
+typedef void (*NodeEmitter)(struct ParserNode *self, struct Parser *parser);
 
 struct ParserNode {
 	enum ParserNodeType type;
 	int byteSize;
 
 	NodeParser parse;
+	NodeEmitter emit;
 };
 
 struct ParserNodeStructuralOrigin {
