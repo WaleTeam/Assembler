@@ -4,8 +4,9 @@
 
 #include "tokenizer.h"
 
-#define PARSER_FLAG_REGISTERSIZE_16	0x1
-#define PARSER_FLAG_INDEXSIZE_16	0x2
+#define kParserFlagRegSize16		0x1
+#define kParserFlagIndexSize16		0x2
+#define kMaxStringLength			kMaxTokenLength
 
 struct Parser {
 	int origin;
@@ -24,6 +25,28 @@ enum ParserNodeType {
 struct ParserNode {
 	enum ParserNodeType type;
 	int byteSize;
+};
+
+struct ParserNodeStructural {
+	struct ParserNode parserNode;
+};
+
+struct ParserNodeOpcode {
+	struct ParserNode parserNode;
+	int opcode;
+	int param1;
+	int param2;
+};
+
+struct ParserNodeString {
+	struct ParserNode parserNode;
+	char string[kMaxStringLength];
+	int stringSize;
+};
+
+struct ParserNodeNumber {
+	struct ParserNode parserNode;
+	int number;
 };
 
 void parser_init(struct Parser *self);
