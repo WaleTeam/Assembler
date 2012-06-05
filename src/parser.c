@@ -33,6 +33,7 @@ struct ParserNode *parser_select_node(struct Parser *self, struct Token *token) 
 			break;
 	}
 
+	parserNode_free(self->currentNode);
 	self->currentNode = result;
 }
 
@@ -42,13 +43,20 @@ void parser_parse_token(struct Parser *self, struct Token *token) {
 
 	if(node->state == ParserNodeStateSuccessful || node->state == ParserNodeStateError) {
 		node->emit(node, self);
-		parserNode_free(node);
-
 		node = parser_select_node(self, token);
+
+		// char *type = "0";
+		// type[0] += (char)node->state;
+
+		// emu_log("Selected New Node!\n");
+		// emu_log("Type: ");
+		// emu_log(type);
+		// emu_log("\n");
 	}
 
 	if(node->state == ParserNodeStateInitialized || node->state == ParserNodeStateParsing) {
 		node->parse(node, self, token);
+		emu_log("Parsed Node!\n");
 	} else {
 		self->state = ParserStateError;
 		emu_log("Fatal Error!\n");
@@ -94,16 +102,30 @@ void parserNodeStructuralLabel_parse(struct ParserNode *self, struct Parser *par
 }
 
 void parserNodeWord_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
-	emu_log("parsing token as word: ");
-	emu_log(token->string);
-	emu_log("\n");
 
-	if(is_keyword(token->string)) {
+	struct ParserNodeWord *node = (struct ParserNodeWord *)self;
 
-	} else if(is_label(token->string)) {
+	emu_log("Word Parser called\n");
 
-	} else {
-		self->state = ParserNodeStateError;
+	if(node->subNode == 0) {
+		if(is_keyword(token->string)) {
+			emu_log("detected keyword\n");
+			node->subNode = parserNode_create(ParserNodeTypeStructural);
+		} else if(is_label(token->string)) {
+			emu_log("detected known label\n");
+			// node->subNode = parserNode_create(ParserNodeTypeStructuralLabel)
+		} else {
+			emu_log("detected label\n");
+			node->subNode = parserNode_create(ParserNodeTypeStructuralLabel);
+		}
+	}
+
+	if(node->subNode != 0) {
+		emu_log("subnode exists\n");
+		node->subNode->parse(node->subNode, parser, token);
+		emu_log("subnode parsed\n");
+		node->parserNode.state = node->subNode->state;
+		emu_log("subnode state transfer\n");
 	}
 }
 
@@ -197,6 +219,7 @@ struct ParserNode *parserNode_create(enum ParserNodeType type) {
 			break;
 		case ParserNodeTypeWord:
 			result = emu_malloc(sizeof(struct ParserNodeWord));
+			((struct ParserNodeWord *)result)->subNode = 0;
 			result->parse = parserNodeWord_parse;
 			result->emit = parserNodeWord_emit;
 			result->state = ParserNodeStateInitialized;
@@ -228,5 +251,11 @@ struct ParserNode *parserNode_create(enum ParserNodeType type) {
 }
 
 void parserNode_free(struct ParserNode *self) {
-	emu_free(self);
+
+	switch(self->type) {
+		case ParserNodeTypeWord:
+			parserNode_free(((struct ParserNodeWord *)self)->subNode);
+		default:
+			emu_free(self);
+	}
 }

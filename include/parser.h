@@ -33,7 +33,7 @@ struct ParserNode;
 typedef void (*NodeParser)(struct ParserNode *self, struct Parser *parser, struct Token *token);
 typedef void (*NodeEmitter)(struct ParserNode *self, struct Parser *parser);
 
-struct ParserNode {
+struct  ParserNode {
 	enum ParserNodeType type;
 	enum ParserNodeState state;
 	int byteSize;
@@ -63,7 +63,8 @@ struct ParserNodeStructuralLabel {
 };
 
 struct ParserNodeWord {
-
+	struct ParserNode parserNode;
+	struct ParserNode *subNode;
 };
 
 struct ParserNodeOpcode {
