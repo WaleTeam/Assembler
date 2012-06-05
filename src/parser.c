@@ -33,26 +33,25 @@ struct ParserNode *parser_select_node(struct Parser *self, struct Token *token) 
 			break;
 	}
 
-	return result;
+	self->currentNode = result;
 }
 
 void parser_parse_token(struct Parser *self, struct Token *token) {
 
 	struct ParserNode *node = self->currentNode;
 
-	if(node->state == ParserNodeStateSuccessful) {
+	if(node->state == ParserNodeStateSuccessful || node->state == ParserNodeStateError) {
 		node->emit(node, self);
 		parserNode_free(node);
 
 		node = parser_select_node(self, token);
-		self->currentNode = node;
+	}
 
+	if(node->state == ParserNodeStateInitialized || node->state == ParserNodeStateParsing) {
 		node->parse(node, self, token);
-
-	} else if(node->state == ParserNodeStateError) {
-		self->state = ParserStateError;
 	} else {
-		node->parse(node, self, token);
+		self->state = ParserStateError;
+		emu_log("Fatal Error!\n");
 	}
 }
 
@@ -61,42 +60,63 @@ void parser_finish(struct Parser *self) {
 }
 
 //#############################################################################
+// ### helpers ###
+//#############################################################################
+int is_keyword(char *string) {
+	return 0;
+}
+
+int is_label(char *string) {
+	return 0;
+}
+
+//#############################################################################
 // ### node parsers ###
 //#############################################################################
 void parserNode_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
-
+	emu_log("parsing token as default\n");
 }
 
 void parserNodeStructuralOrigin_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
-
+	emu_log("parsing token as default\n");
 }
 
 void parserNodeStructural_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
-
+	emu_log("parsing token as origin\n");
 }
 
 void parserNodeStructuralRegMode_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
-	
+	emu_log("parsing token as regmode\n");
 }
 
 void parserNodeStructuralLabel_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
-	
+	emu_log("parsing token as label\n");
 }
 
 void parserNodeWord_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
+	emu_log("parsing token as word: ");
+	emu_log(token->string);
+	emu_log("\n");
 
+	if(is_keyword(token->string)) {
+
+	} else if(is_label(token->string)) {
+
+	} else {
+		self->state = ParserNodeStateError;
+	}
 }
 
 void parserNodeOpcode_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
-	
+	emu_log("parsing token as opcode\n");
 }
 
 void parserNodeString_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
-	
+	emu_log("parsing token as string\n");
 }
 
 void parserNodeNumber_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
-	
+	emu_log("parsing token as number\n");
 }
 
 //#############################################################################

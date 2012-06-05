@@ -15,6 +15,8 @@ void *emu_malloc(emu_size_t size);
 void *emu_realloc(void *ptr, emu_size_t size);
 void emu_free(void *ptr);
 
+void emu_log(char *log);
+
 
 extern int emu_stdin;
 extern int emu_stdout;

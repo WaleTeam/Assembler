@@ -40,3 +40,7 @@ void *emu_realloc(void *ptr, emu_size_t size) {
 void emu_free(void *ptr) {
 	return free(ptr);
 }
+
+void emu_log(char *log) {
+	printf("%s", log);
+}
