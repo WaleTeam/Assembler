@@ -48,7 +48,7 @@ struct Token {
 	int stringIndex;
 };
 
-void init_tokenizer(struct Tokenizer *self, Token_fill_buffer fill_buffer, Token_handler token_handler);
-void process_tokens(struct Tokenizer *self);
+void tokenizer_init(struct Tokenizer *self, Token_fill_buffer fill_buffer, Token_handler token_handler);
+void tokenizer_find_tokens(struct Tokenizer *self);
 
 #endif //_PROJECT_AS_TOKENIZER_H_INCLUDED_

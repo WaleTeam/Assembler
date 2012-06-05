@@ -11,6 +11,8 @@ struct List {
 };
 
 void list_init(struct List *self, void *ptr);
+void list_free(struct List *self);
+
 void list_insert_before(struct List *self, struct List *other);
 void list_insert_after(struct List *self, struct List *other);
 void list_remove(struct List *self);

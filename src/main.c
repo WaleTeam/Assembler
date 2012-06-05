@@ -1,5 +1,6 @@
 #include "emu.h"
 #include "tokenizer.h"
+#include "parser.h"
 #include "list.h"
 
 char message[] = "refilled buffer with:\n";
@@ -33,66 +34,69 @@ void print_token(struct Token *token) {
 void token_handler(struct Tokenizer *tokenizer, struct Token *token) {
 	// print_token(token);
 
-	struct Token *copyToken = emu_malloc(sizeof(struct Token));
+	// struct Token *copyToken = emu_malloc(sizeof(struct Token));
 
-	emu_memcpy(copyToken, token, sizeof(struct Token));
+	// emu_memcpy(copyToken, token, sizeof(struct Token));
 
-	currentToken->ptr = copyToken;
+	// currentToken->ptr = copyToken;
 
-	struct List *nextListItem = emu_malloc(sizeof(struct List));
-	list_init(nextListItem, 0);
-	list_insert_after(currentToken, nextListItem);
-	currentToken = nextListItem;
+	// struct List *nextListItem = emu_malloc(sizeof(struct List));
+	// list_init(nextListItem, 0);
+	// list_insert_after(currentToken, nextListItem);
+	// currentToken = nextListItem;
 }
 
-void print_tokens() {
-	struct List *list = tokenList;
+// void print_tokens() {
+// 	struct List *list = tokenList;
 
-	while(list->ptr != 0) {
-		struct Token *token = (struct Token *)list->ptr;
-		print_token(token);
+// 	while(list->ptr != 0) {
+// 		struct Token *token = (struct Token *)list->ptr;
+// 		print_token(token);
 
-		list = list->next;
-	}
-}
+// 		list = list->next;
+// 	}
+// }
 
-void free_tokens() {
-	struct List *list = tokenList;
-	struct List *lastToken = list->previous;
+// void free_tokens() {
+// 	struct List *list = tokenList;
+// 	struct List *lastToken = list->previous;
 
-	do {
-		struct List *next = list = list->next;
+// 	do {
+// 		struct List *next = list = list->next;
 
-		emu_free(list->ptr);
-		emu_free(list);
+// 		emu_free(list->ptr);
+// 		emu_free(list);
 
-		list = next;
-	} while(list != lastToken);
+// 		list = next;
+// 	} while(list != lastToken);
 
-	tokenList = lastToken;
-	currentToken = lastToken;
-}
+// 	tokenList = lastToken;
+// 	currentToken = lastToken;
+// }
 
-void init_token_list() {
-	tokenList = emu_malloc(sizeof(struct List));
+// void init_token_list() {
+// 	tokenList = emu_malloc(sizeof(struct List));
 
-	list_init(tokenList, 0);
-	currentToken = tokenList;
-}
+// 	list_init(tokenList, 0);
+// 	currentToken = tokenList;
+// }
 
 int main(int argc, char *argv[]) {
 
 	struct Tokenizer tokenizer;
+	struct Parser parser;
 
 	emu_init();
 
-	init_token_list();
+	// init_token_list();
 
-	init_tokenizer(&tokenizer, token_fill_buffer, token_handler);
-	process_tokens(&tokenizer);
+	tokenizer_init(&tokenizer, token_fill_buffer, token_handler);
+	parser_init(&parser);
 
-	print_tokens();
-	free_tokens();
+	tokenizer_find_tokens(&tokenizer);
+
+	// print_tokens();
+	// free_tokens();
 
 	return 0;
 }

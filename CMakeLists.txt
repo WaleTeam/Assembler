@@ -4,4 +4,4 @@ project (AS)
 set(CMAKE_C_FLAGS "-std=c99")
 
 include_directories(${AS_SOURCE_DIR}/include)
-add_executable(as src/main.c src/emu.c src/tokenizer.c src/list.c)
+add_executable(as src/main.c src/emu.c src/tokenizer.c src/list.c src/parser.c)
