@@ -32,7 +32,8 @@ void print_token(struct Token *token) {
 }
 
 void token_handler(struct Tokenizer *tokenizer, struct Token *token) {
-	parser_parse_token(&parser, token);
+	// parser_parse_token(&parser, token);
+	print_token(token);
 }
 
 int main(int argc, char *argv[]) {

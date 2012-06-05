@@ -69,6 +69,14 @@ int tokenizer_is_delimeter(struct Tokenizer *self, char character) {
 	}
 }
 
+int tokenizer_is_comment_delimeter(char character) {
+	if(character == ';') {
+		return 1;
+	}
+
+	return 0;
+}
+
 int tokenizer_is_string_delimeter(struct Tokenizer *self, char character) {
 
 	if(self->state == TokenizerStateDone) {
@@ -87,6 +95,10 @@ int tokenizer_is_string_delimeter(struct Tokenizer *self, char character) {
 
 int tokenizer_is_number(char character) {
 	if(character >= '0' && character <= '9') {
+		return 1;
+	}
+
+	if(character == '$') {
 		return 1;
 	}
 
@@ -109,7 +121,6 @@ int tokenizer_is_structure_delimeter(char character) {
 	switch(character) {
 		case '.':
 		case ':':
-		case ';':
 		case '(':
 		case ')':
 		case '=':
@@ -210,7 +221,9 @@ void tokenizer_string_handler(struct Tokenizer *self) {
 
 	self->token_handler(self, &token);
 }
-
+//########################################################################################
+// ### structure tokenizer ###
+//########################################################################################
 void tokenizer_structure_handler(struct Tokenizer *self) {
 	struct Token token;
 
@@ -224,6 +237,20 @@ void tokenizer_structure_handler(struct Tokenizer *self) {
 	self->token_handler(self, &token);
 }
 
+//########################################################################################
+// ### comment tokenizer ###
+//########################################################################################
+void tokenizer_comment_handler(struct Tokenizer *self) {
+	char currentChar = tokenizer_advance_chracter_pointer(self);
+
+	while(currentChar != '\n') {
+		currentChar = tokenizer_advance_chracter_pointer(self);
+	}
+}
+
+//########################################################################################
+// ### root tokenizer ###
+//########################################################################################
 void tokenizer_root_handler(struct Tokenizer *self) {
 
 	while(! self->state == TokenizerStateDone) {
@@ -246,6 +273,9 @@ void tokenizer_root_handler(struct Tokenizer *self) {
 			} else if(tokenizer_is_structure_delimeter(currentChar)) {
 
 				tokenizer_structure_handler(self);
+			} else if(tokenizer_is_comment_delimeter(currentChar)) {
+
+				tokenizer_comment_handler(self);
 			} else {
 
 				currentChar = tokenizer_advance_chracter_pointer(self);
