@@ -18,6 +18,13 @@ enum ParserNodeType {
 	ParserNodeTypeNumber				//$320				-	number to binary translation
 };
 
+enum ParserNodeState {
+	ParserNodeStateInitialized,
+	ParserNodeStateParsing,
+	ParserNodeStateError,
+	ParserNodeStateSuccessful
+};
+
 struct Parser;
 struct ParserNode;
 
@@ -26,6 +33,7 @@ typedef void (*NodeEmitter)(struct ParserNode *self, struct Parser *parser);
 
 struct ParserNode {
 	enum ParserNodeType type;
+	enum ParserNodeState state;
 	int byteSize;
 
 	NodeParser parse;
