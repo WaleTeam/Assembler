@@ -27,8 +27,29 @@ struct ParserNode {
 	int byteSize;
 };
 
+enum ParserNodeStructuralType {
+	ParserNodeStructuralTypeNone,
+	ParserNodeStructuralTypeOrigin,
+	ParserNodeStructuralTypeRegMode,
+	ParserNodeStructuralTypeLabel
+};
+
 struct ParserNodeStructural {
 	struct ParserNode parserNode;
+	enum ParserNodeStructuralType type;
+};
+
+struct ParserNodeStructuralOrigin {
+	int origin;
+};
+
+struct ParserNodeStructuralRegMode {
+	int flags;
+};
+
+struct ParserNodeStructuralLabel {
+	char labelName[kMaxStringLength];
+	int address;
 };
 
 struct ParserNodeOpcode {
