@@ -9,10 +9,12 @@
 #define kMaxStringLength			kMaxTokenLength
 
 enum ParserNodeType {
-	ParserNodeTypeNone,			
+	ParserNodeTypeNone,
+	ParserNodeTypeStructural,
 	ParserNodeTypeStructuralOrigin,
 	ParserNodeTypeStructuralRegMode,
 	ParserNodeTypeStructuralLabel,
+	ParserNodeTypeWord,
 	ParserNodeTypeOpcode,				//mmu $25			-	normal opcode to binary translation
 	ParserNodeTypeString,				//"Hello World"		- 	string to binary translation
 	ParserNodeTypeNumber				//$320				-	number to binary translation
@@ -28,7 +30,7 @@ enum ParserNodeState {
 struct Parser;
 struct ParserNode;
 
-typedef void (*NodeParser)(struct ParserNode *self, struct Parser *parser);
+typedef void (*NodeParser)(struct ParserNode *self, struct Parser *parser, struct Token *token);
 typedef void (*NodeEmitter)(struct ParserNode *self, struct Parser *parser);
 
 struct ParserNode {
@@ -38,6 +40,10 @@ struct ParserNode {
 
 	NodeParser parse;
 	NodeEmitter emit;
+};
+
+struct ParserNodeStructural {
+
 };
 
 struct ParserNodeStructuralOrigin {
@@ -54,6 +60,10 @@ struct ParserNodeStructuralLabel {
 	struct ParserNode parserNode;
 	char labelName[kMaxStringLength];
 	int address;
+};
+
+struct ParserNodeWord {
+
 };
 
 struct ParserNodeOpcode {
