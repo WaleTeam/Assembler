@@ -8,18 +8,14 @@
 #define kParserFlagIndexSize16		0x2
 #define kMaxStringLength			kMaxTokenLength
 
-struct Parser {
-	int origin;
-	int flags;
-};
-
 enum ParserNodeType {
 	ParserNodeTypeNone,			
-	ParserNodeTypeStructural,	//.origin $500		-	controls parsing context and behavior
-								//label:
-	ParserNodeTypeOpcode,		//mmu $25			-	normal opcode to binary translation
-	ParserNodeTypeString,		//"Hello World"		- 	string to binary translation
-	ParserNodeTypeNumber		//$320				-	number to binary translation
+	ParserNodeSTypetructuralOrigin,
+	ParserNodeTypeStructuralRegMode,
+	ParserNodeTypeStructuralLabel,
+	ParserNodeTypeOpcode,				//mmu $25			-	normal opcode to binary translation
+	ParserNodeTypeString,				//"Hello World"		- 	string to binary translation
+	ParserNodeTypeNumber				//$320				-	number to binary translation
 };
 
 struct ParserNode {
@@ -27,27 +23,22 @@ struct ParserNode {
 	int byteSize;
 };
 
-enum ParserNodeStructuralType {
-	ParserNodeStructuralTypeNone,
-	ParserNodeStructuralTypeOrigin,
-	ParserNodeStructuralTypeRegMode,
-	ParserNodeStructuralTypeLabel
-};
-
 struct ParserNodeStructural {
 	struct ParserNode parserNode;
-	enum ParserNodeStructuralType type;
 };
 
 struct ParserNodeStructuralOrigin {
+	struct ParserNode parserNode;
 	int origin;
 };
 
 struct ParserNodeStructuralRegMode {
+	struct ParserNode parserNode;
 	int flags;
 };
 
 struct ParserNodeStructuralLabel {
+	struct ParserNode parserNode;
 	char labelName[kMaxStringLength];
 	int address;
 };
@@ -70,7 +61,15 @@ struct ParserNodeNumber {
 	int number;
 };
 
+struct Parser {
+	int origin;
+	int flags;
+	int currentAddress;
+};
+
 void parser_init(struct Parser *self);
 void parser_parse_token(struct Parser *self, struct Token *token);
+
+struct ParserNode *parserNode_create(enum ParserNodeType type);
 
 #endif //_PROJECT_AS_PARSER_H_INCLUDED_
