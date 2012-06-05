@@ -70,6 +70,10 @@ int is_label(char *string) {
 	return 0;
 }
 
+int is_opcode(char *string) {
+	return 0;
+}
+
 //#############################################################################
 // ### node parsers ###
 //#############################################################################
@@ -101,19 +105,25 @@ void parserNodeWord_parse(struct ParserNode *self, struct Parser *parser, struct
 
 	if(node->subNode == 0) {
 		if(is_keyword(token->string)) {
+
 			node->subNode = parserNode_create(ParserNodeTypeStructural);
+		} else if(is_opcode(token->string)) {
+
+			node->subNode = parserNode_create(ParserNodeTypeOpcode);
 		} else if(is_label(token->string)) {
+
+			node->parserNode.state = ParserNodeStateError;
+
 			// node->subNode = parserNode_create(ParserNodeTypeStructuralLabel)
 		} else {
+
 			node->subNode = parserNode_create(ParserNodeTypeStructuralLabel);
 		}
 	}
 
-	if(node->subNode != 0) {
+	if(node->parserNode.state != ParserNodeStateError) {
 		node->subNode->parse(node->subNode, parser, token);
 		node->parserNode.state = node->subNode->state;
-	} else {
-		node->parserNode.state = ParserNodeStateError;
 	}
 }
 
