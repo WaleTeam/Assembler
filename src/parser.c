@@ -6,13 +6,30 @@ void parser_init(struct Parser *self) {
 	self->currentNode = parserNode_create(ParserNodeTypeNone);
 }
 
-//#############################################################################
-// ### node parsers ###
-//#############################################################################
-void parser_parse_token(struct Parser *self, struct Token *token) {
+void parser_emit_code(struct Parser *self, void *buffer, emu_size_t size) {
 
 }
 
+void parser_parse_token(struct Parser *self, struct Token *token) {
+
+	struct ParserNode *node = self->currentNode;
+
+	if(node->state == ParserNodeStateSuccessful) {
+		node->emit(node, self);
+	} else if(node->state == ParserNodeStateError) {
+		self->state = ParserStateError;
+	} else {
+		node->parse(node, self);
+	}
+}
+
+void parser_finish(struct Parser *self) {
+	
+}
+
+//#############################################################################
+// ### node parsers ###
+//#############################################################################
 void parserNode_parse(struct ParserNode *self, struct Parser *parser) {
 
 }

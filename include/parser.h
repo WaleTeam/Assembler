@@ -74,7 +74,17 @@ struct ParserNodeNumber {
 	int number;
 };
 
+enum ParserState {
+	ParserStateInitial,
+	ParserStateParsing,
+	ParserStateError,
+	ParserStateSuccessful,
+};
+
+
 struct Parser {
+	enum ParserState state;
+
 	int origin;
 	int flags;
 	int currentAddress;
@@ -84,6 +94,7 @@ struct Parser {
 
 void parser_init(struct Parser *self);
 void parser_parse_token(struct Parser *self, struct Token *token);
+void parser_finish(struct Parser *self);
 
 struct ParserNode *parserNode_create(enum ParserNodeType type);
 void parserNode_free(struct ParserNode *node);
