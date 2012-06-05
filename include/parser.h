@@ -10,7 +10,7 @@
 
 enum ParserNodeType {
 	ParserNodeTypeNone,			
-	ParserNodeSTypetructuralOrigin,
+	ParserNodeTypeStructuralOrigin,
 	ParserNodeTypeStructuralRegMode,
 	ParserNodeTypeStructuralLabel,
 	ParserNodeTypeOpcode,				//mmu $25			-	normal opcode to binary translation
@@ -65,11 +65,14 @@ struct Parser {
 	int origin;
 	int flags;
 	int currentAddress;
+
+	struct ParserNode *currentNode;
 };
 
 void parser_init(struct Parser *self);
 void parser_parse_token(struct Parser *self, struct Token *token);
 
 struct ParserNode *parserNode_create(enum ParserNodeType type);
+void parserNode_free(struct ParserNode *node);
 
 #endif //_PROJECT_AS_PARSER_H_INCLUDED_
