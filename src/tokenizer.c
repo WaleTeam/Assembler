@@ -24,7 +24,7 @@ void tokenizer_refill_buffer(struct Tokenizer *self) {
 	
 	if(bytes_read == 0) {
 		self->state = TokenizerStateDone;
-	}	
+	}
 }
 
 void tokenizer_find_tokens(struct Tokenizer *self) {
@@ -50,8 +50,11 @@ void token_init(struct Token *self, enum TokenType type) {
 }
 
 void token_store_character(struct Token *self, char character) {
+
+	//FIXME: check for overflow
 	self->string[self->stringIndex] = character;
 	self->stringIndex++;
+	self->string[self->stringIndex] = 0;
 }
 
 int tokenizer_is_delimeter(struct Tokenizer *self, char character) {
@@ -142,6 +145,7 @@ void tokenizer_word_handler(struct Tokenizer *self) {
 	struct Token token;
 
 	token_init(&token, TokenTypeWord);
+
 
 	char currentChar = tokenizer_get_current_char(self);
 
@@ -261,6 +265,7 @@ void tokenizer_root_handler(struct Tokenizer *self) {
 
 			currentChar = tokenizer_advance_chracter_pointer(self);
 		} else {
+
 			if(tokenizer_is_letter(currentChar)) {
 
 				tokenizer_word_handler(self);

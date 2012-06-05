@@ -35,6 +35,8 @@ struct ParserNode *parser_select_node(struct Parser *self, struct Token *token) 
 
 	parserNode_free(self->currentNode);
 	self->currentNode = result;
+
+	return result;
 }
 
 void parser_parse_token(struct Parser *self, struct Token *token) {
@@ -44,22 +46,12 @@ void parser_parse_token(struct Parser *self, struct Token *token) {
 	if(node->state == ParserNodeStateSuccessful || node->state == ParserNodeStateError) {
 		node->emit(node, self);
 		node = parser_select_node(self, token);
-
-		// char *type = "0";
-		// type[0] += (char)node->state;
-
-		// emu_log("Selected New Node!\n");
-		// emu_log("Type: ");
-		// emu_log(type);
-		// emu_log("\n");
 	}
 
 	if(node->state == ParserNodeStateInitialized || node->state == ParserNodeStateParsing) {
 		node->parse(node, self, token);
-		emu_log("Parsed Node!\n");
 	} else {
 		self->state = ParserStateError;
-		emu_log("Fatal Error!\n");
 	}
 }
 
@@ -109,23 +101,19 @@ void parserNodeWord_parse(struct ParserNode *self, struct Parser *parser, struct
 
 	if(node->subNode == 0) {
 		if(is_keyword(token->string)) {
-			emu_log("detected keyword\n");
 			node->subNode = parserNode_create(ParserNodeTypeStructural);
 		} else if(is_label(token->string)) {
-			emu_log("detected known label\n");
 			// node->subNode = parserNode_create(ParserNodeTypeStructuralLabel)
 		} else {
-			emu_log("detected label\n");
 			node->subNode = parserNode_create(ParserNodeTypeStructuralLabel);
 		}
 	}
 
 	if(node->subNode != 0) {
-		emu_log("subnode exists\n");
 		node->subNode->parse(node->subNode, parser, token);
-		emu_log("subnode parsed\n");
 		node->parserNode.state = node->subNode->state;
-		emu_log("subnode state transfer\n");
+	} else {
+		node->parserNode.state = ParserNodeStateError;
 	}
 }
 
