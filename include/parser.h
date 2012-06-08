@@ -121,6 +121,8 @@ struct Parser {
 void parser_init(struct Parser *self);
 void parser_parse_token(struct Parser *self, struct Token *token);
 void parser_finish(struct Parser *self);
+struct Symbol *parser_find_symbol(struct Parser *self, char *name);
+void parser_add_symbol(struct Parser *self, struct Symbol *symbol);
 
 struct ParserNode *parserNode_create(enum ParserNodeType type);
 void parserNode_free(struct ParserNode *node);
