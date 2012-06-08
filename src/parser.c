@@ -181,7 +181,6 @@ void parserNode_emit(struct ParserNode *self, struct Parser *parser) {
 //#############################################################################
 // ### constructors ###
 //#############################################################################
-
 void *check_for_alloc(void * ptr, emu_size_t size) {
 
 	if(ptr == 0) {
@@ -220,7 +219,7 @@ struct ParserNodeStructuralOrigin *parserNodeStructuralOrigin_init(struct Parser
 	struct ParserNodeStructuralOrigin *result = check_for_alloc(self, sizeof(struct ParserNodeStructuralOrigin));
 
 	parserNode_init((struct ParserNode *) result);
-	result->parserNode.type = ParserNodeTypeStructural;
+	result->parserNode.type = ParserNodeTypeStructuralOrigin;
 
 	return result;
 }
@@ -230,7 +229,7 @@ struct ParserNodeStructuralRegMode *parserNodeStructuralRegMode_init(struct Pars
 	struct ParserNodeStructuralRegMode *result = check_for_alloc(self, sizeof(struct ParserNodeStructuralRegMode));
 
 	parserNode_init((struct ParserNode *) result);
-	result->parserNode.type = ParserNodeTypeStructural;
+	result->parserNode.type = ParserNodeTypeStructuralRegMode;
 
 	return result;
 }
@@ -240,7 +239,7 @@ struct ParserNodeStructuralLabel *parserNodeStructuralLabel_init(struct ParserNo
 	struct ParserNodeStructuralLabel *result = check_for_alloc(self, sizeof(struct ParserNodeStructuralLabel));
 
 	parserNode_init((struct ParserNode *) result);
-	result->parserNode.type = ParserNodeTypeStructural;
+	result->parserNode.type = ParserNodeTypeStructuralLabel;
 	result->parserNode.tokenTester = parserNodeStructuralLabel_tokenTester;
 
 	return result;
@@ -251,7 +250,7 @@ struct ParserNodeWord *parserNodeWord_init(struct ParserNodeWord *self) {
 	struct ParserNodeWord *result = check_for_alloc(self, sizeof(struct ParserNodeWord));
 
 	parserNode_init((struct ParserNode *) result);
-	result->parserNode.type = ParserNodeTypeStructural;
+	result->parserNode.type = ParserNodeTypeWord;
 	result->subNode = 0;
 
 	return result;
@@ -262,7 +261,7 @@ struct ParserNodeOpcode *parserNodeOpcode_init(struct ParserNodeOpcode *self) {
 	struct ParserNodeOpcode *result = check_for_alloc(self, sizeof(struct ParserNodeOpcode));
 
 	parserNode_init((struct ParserNode *) result);
-	result->parserNode.type = ParserNodeTypeStructural;
+	result->parserNode.type = ParserNodeTypeOpcode;
 
 	return result;
 }
@@ -272,7 +271,7 @@ struct ParserNodeString *parserNodeString_init(struct ParserNodeString *self) {
 	struct ParserNodeString *result = check_for_alloc(self, sizeof(struct ParserNodeString));
 
 	parserNode_init((struct ParserNode *) result);
-	result->parserNode.type = ParserNodeTypeStructural;
+	result->parserNode.type = ParserNodeTypeString;
 
 	return result;
 }
@@ -282,7 +281,7 @@ struct ParserNodeNumber *parserNodeNumber_init(struct ParserNodeNumber *self) {
 	struct ParserNodeNumber *result = check_for_alloc(self, sizeof(struct ParserNodeNumber));
 
 	parserNode_init((struct ParserNode *) result);
-	result->parserNode.type = ParserNodeTypeStructural;
+	result->parserNode.type = ParserNodeTypeNumber;
 
 	return result;
 }
