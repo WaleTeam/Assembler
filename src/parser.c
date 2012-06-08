@@ -46,13 +46,17 @@ void parser_parse_token(struct Parser *self, struct Token *token) {
 
 	struct ParserNode *node = self->currentNode;
 
-	if(node->state == ParserNodeStateSuccessful || node->state == ParserNodeStateError) {
+	if(node->state == ParserNodeStateSuccessful || node->state == ParserNodeStateEarlySuccess || node->state == ParserNodeStateError) {
 		node->emit(node, self);
 		node = parser_select_node(self, token);
 	}
 
 	if(node->state == ParserNodeStateInitialized || node->state == ParserNodeStateParsing) {
 		node->parse(node, self, token);
+
+		if(node->state == ParserNodeStateEarlySuccess) {
+			parser_parse_token(self, token);
+		}
 	} else {
 		self->state = ParserStateError;
 	}
@@ -78,6 +82,18 @@ int is_opcode(char *string) {
 }
 
 //#############################################################################
+// ### token testers ###
+//#############################################################################
+
+int parserNode_tokenTester(struct ParserNode *self, struct Parser *parser, struct Token *token) {
+	return 0;
+}
+
+int parserNodeStructuralLabel_tokenTester(struct ParserNode *self, struct Parser *parser, struct Token *token) {
+	return 0;
+}
+
+//#############################################################################
 // ### node parsers ###
 //#############################################################################
 void parserNode_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
@@ -97,11 +113,26 @@ void parserNodeStructuralRegMode_parse(struct ParserNode *self, struct Parser *p
 }
 
 void parserNodeStructuralLabel_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
-	emu_log("parsing token as label\n");
+	emu_log("parsing token as label: I\n");
 
-	struct ParserNodeStructuralLabel *node = (struct ParserNodeStructuralLabel *)self;
-	emu_strncpy(node->labelName, token->string, kMaxStringLength);
+	if(self->state == ParserNodeStateInitialized) {
+		emu_log("parsing token as label: A\n");
+		struct ParserNodeStructuralLabel *node = (struct ParserNodeStructuralLabel *)self;
+		emu_strncpy(node->labelName, token->string, kMaxStringLength);
 
+		self->state = ParserNodeStateParsing;
+	} else if(self->state == ParserNodeStateParsing) {
+
+		emu_log("parsing token as label: B\n");
+
+		if(token->stringIndex == 1 && token->string[0] == ':') {
+			emu_log("parsing token as label: C\n");
+			self->state = ParserNodeStateSuccessful;
+		} else {
+			emu_log("parsing token as label: D\n");
+			self->state = ParserNodeStateError;
+		}
+	}
 }
 
 void parserNodeWord_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
@@ -117,7 +148,7 @@ void parserNodeWord_parse(struct ParserNode *self, struct Parser *parser, struct
 			node->subNode = parserNode_create(ParserNodeTypeOpcode);
 		} else {
 
-			//try to define a label
+			//try to define or reference a label
 			node->subNode = parserNode_create(ParserNodeTypeStructuralLabel);
 		}
 	}
@@ -188,30 +219,35 @@ struct ParserNode *parserNode_create(enum ParserNodeType type) {
 			return result;
 		case ParserNodeTypeNone:
 			result = emu_malloc(sizeof(struct ParserNode));
+			result->tokenTester = parserNode_tokenTester;
 			result->parse = parserNode_parse;
 			result->emit = parserNode_emit;
 			result->state = ParserNodeStateSuccessful;
 			break;
 		case ParserNodeTypeStructural:
 			result = emu_malloc(sizeof(struct ParserNodeStructural));
+			result->tokenTester = parserNode_tokenTester;
 			result->parse = parserNodeStructural_parse;
 			result->emit = parserNodeStructural_emit;
 			result->state = ParserNodeStateInitialized;
 			break;
 		case ParserNodeTypeStructuralOrigin:
 			result = emu_malloc(sizeof(struct ParserNodeStructuralOrigin));
+			result->tokenTester = parserNode_tokenTester;
 			result->parse = parserNodeStructuralOrigin_parse;
 			result->emit = parserNodeStructuralOrigin_emit;
 			result->state = ParserNodeStateInitialized;
 			break;
 		case ParserNodeTypeStructuralRegMode:
 			result = emu_malloc(sizeof(struct ParserNodeStructuralRegMode));
+			result->tokenTester = parserNode_tokenTester;
 			result->parse = parserNodeStructuralRegMode_parse;
 			result->emit = parserNodeStructuralRegMode_emit;
 			result->state = ParserNodeStateInitialized;
 			break;
 		case ParserNodeTypeStructuralLabel:
 			result = emu_malloc(sizeof(struct ParserNodeStructuralLabel));
+			result->tokenTester = parserNodeStructuralLabel_tokenTester;
 			result->parse = parserNodeStructuralLabel_parse;
 			result->emit = parserNodeStructuralLabel_emit;
 			result->state = ParserNodeStateInitialized;
@@ -219,24 +255,28 @@ struct ParserNode *parserNode_create(enum ParserNodeType type) {
 		case ParserNodeTypeWord:
 			result = emu_malloc(sizeof(struct ParserNodeWord));
 			((struct ParserNodeWord *)result)->subNode = 0;
+			result->tokenTester = parserNode_tokenTester;
 			result->parse = parserNodeWord_parse;
 			result->emit = parserNodeWord_emit;
 			result->state = ParserNodeStateInitialized;
 			break;
 		case ParserNodeTypeOpcode:
 			result = emu_malloc(sizeof(struct ParserNodeOpcode));
+			result->tokenTester = parserNode_tokenTester;
 			result->parse = parserNodeOpcode_parse;
 			result->emit = parserNodeOpcode_emit;
 			result->state = ParserNodeStateInitialized;
 			break;
 		case ParserNodeTypeString:
 			result = emu_malloc(sizeof(struct ParserNodeString));
+			result->tokenTester = parserNode_tokenTester;
 			result->parse = parserNodeString_parse;
 			result->emit = parserNodeString_emit;
 			result->state = ParserNodeStateInitialized;
 			break;
 		case ParserNodeTypeNumber:
 			result = emu_malloc(sizeof(struct ParserNodeNumber));
+			result->tokenTester = parserNode_tokenTester;
 			result->parse = parserNodeNumber_parse;
 			result->emit = parserNodeNumber_emit;
 			result->state = ParserNodeStateInitialized;

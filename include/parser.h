@@ -26,12 +26,14 @@ enum ParserNodeState {
 	ParserNodeStateInitialized,
 	ParserNodeStateParsing,
 	ParserNodeStateError,
+	ParserNodeStateEarlySuccess,
 	ParserNodeStateSuccessful
 };
 
 struct Parser;
 struct ParserNode;
 
+typedef int (*NodeTokenTester)(struct ParserNode *self, struct Parser *parser, struct Token *token);
 typedef void (*NodeParser)(struct ParserNode *self, struct Parser *parser, struct Token *token);
 typedef void (*NodeEmitter)(struct ParserNode *self, struct Parser *parser);
 
@@ -40,6 +42,7 @@ struct  ParserNode {
 	enum ParserNodeState state;
 	int byteSize;
 
+	NodeTokenTester tokenTester;
 	NodeParser parse;
 	NodeEmitter emit;
 };
@@ -103,7 +106,7 @@ enum ParserState {
 	ParserStateInitial,
 	ParserStateParsing,
 	ParserStateError,
-	ParserStateSuccessful,
+	ParserStateSuccessful
 };
 
 
