@@ -210,6 +210,7 @@ struct ParserNodeStructural *parserNodeStructural_init(struct ParserNodeStructur
 
 	parserNode_init((struct ParserNode *) result);
 	result->parserNode.type = ParserNodeTypeStructural;
+	result->parserNode.parse = parserNodeStructural_parse;
 
 	return result;
 }
@@ -220,6 +221,7 @@ struct ParserNodeStructuralOrigin *parserNodeStructuralOrigin_init(struct Parser
 
 	parserNode_init((struct ParserNode *) result);
 	result->parserNode.type = ParserNodeTypeStructuralOrigin;
+	result->parserNode.parse = parserNodeStructuralOrigin_parse;
 
 	return result;
 }
@@ -230,6 +232,7 @@ struct ParserNodeStructuralRegMode *parserNodeStructuralRegMode_init(struct Pars
 
 	parserNode_init((struct ParserNode *) result);
 	result->parserNode.type = ParserNodeTypeStructuralRegMode;
+	result->parserNode.parse = parserNodeStructuralRegMode_parse;
 
 	return result;
 }
@@ -241,6 +244,7 @@ struct ParserNodeStructuralLabel *parserNodeStructuralLabel_init(struct ParserNo
 	parserNode_init((struct ParserNode *) result);
 	result->parserNode.type = ParserNodeTypeStructuralLabel;
 	result->parserNode.tokenTester = parserNodeStructuralLabel_tokenTester;
+	result->parserNode.parse = parserNodeStructuralLabel_parse;
 
 	return result;
 }
@@ -251,6 +255,7 @@ struct ParserNodeWord *parserNodeWord_init(struct ParserNodeWord *self) {
 
 	parserNode_init((struct ParserNode *) result);
 	result->parserNode.type = ParserNodeTypeWord;
+	result->parserNode.parse = parserNodeWord_parse;
 	result->subNode = 0;
 
 	return result;
@@ -262,6 +267,7 @@ struct ParserNodeOpcode *parserNodeOpcode_init(struct ParserNodeOpcode *self) {
 
 	parserNode_init((struct ParserNode *) result);
 	result->parserNode.type = ParserNodeTypeOpcode;
+	result->parserNode.parse = parserNodeOpcode_parse;
 
 	return result;
 }
@@ -272,6 +278,7 @@ struct ParserNodeString *parserNodeString_init(struct ParserNodeString *self) {
 
 	parserNode_init((struct ParserNode *) result);
 	result->parserNode.type = ParserNodeTypeString;
+	result->parserNode.parse = parserNodeString_parse;
 
 	return result;
 }
@@ -282,6 +289,7 @@ struct ParserNodeNumber *parserNodeNumber_init(struct ParserNodeNumber *self) {
 
 	parserNode_init((struct ParserNode *) result);
 	result->parserNode.type = ParserNodeTypeNumber;
+	result->parserNode.parse = parserNodeNumber_parse;
 
 	return result;
 }
