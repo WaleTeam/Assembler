@@ -3,10 +3,12 @@
 
 
 #include "tokenizer.h"
+#include "list.h"
 
 #define kParserFlagRegSize16		0x1
 #define kParserFlagIndexSize16		0x2
 #define kMaxStringLength			kMaxTokenLength
+#define kAddressMax					-1
 
 enum ParserNodeType {
 	ParserNodeTypeNone,
@@ -43,7 +45,7 @@ struct  ParserNode {
 };
 
 struct ParserNodeStructural {
-
+	struct ParserNode parserNode;
 };
 
 struct ParserNodeStructuralOrigin {
@@ -85,6 +87,18 @@ struct ParserNodeNumber {
 	int number;
 };
 
+enum SymbolType {
+	SymbolTypeNone,
+	SymbolTypeLabel
+};
+
+struct Symbol {
+	char name[kMaxStringLength];
+
+	int address;
+	enum SymbolType type;
+};
+
 enum ParserState {
 	ParserStateInitial,
 	ParserStateParsing,
@@ -101,6 +115,7 @@ struct Parser {
 	int currentAddress;
 
 	struct ParserNode *currentNode;
+	struct List *symbolTable;
 };
 
 void parser_init(struct Parser *self);

@@ -206,8 +206,8 @@ os_config:
 }
 '''
 
-.word , $00
-
+.word , $01 ; will be expanded to $0001 respecting the endianess of the system
+.byte
 label1: "string"
 label2:
 

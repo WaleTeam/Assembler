@@ -4,6 +4,9 @@ void parser_init(struct Parser *self) {
 	self->origin = 0;
 	self->flags = 0;
 	self->currentNode = parserNode_create(ParserNodeTypeNone);
+	self->symbolTable = emu_malloc(sizeof(struct List));
+
+	list_init(self->symbolTable, 0);
 }
 
 void parser_emit_code(struct Parser *self, void *buffer, emu_size_t size) {
@@ -66,7 +69,7 @@ int is_keyword(char *string) {
 	return 0;
 }
 
-int is_label(char *string) {
+int is_known_label(char *string) {
 	return 0;
 }
 
@@ -82,11 +85,11 @@ void parserNode_parse(struct ParserNode *self, struct Parser *parser, struct Tok
 }
 
 void parserNodeStructuralOrigin_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
-	emu_log("parsing token as default\n");
+	emu_log("parsing token as origin\n");
 }
 
 void parserNodeStructural_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
-	emu_log("parsing token as origin\n");
+	emu_log("parsing token as structural\n");
 }
 
 void parserNodeStructuralRegMode_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
@@ -104,24 +107,18 @@ void parserNodeWord_parse(struct ParserNode *self, struct Parser *parser, struct
 	emu_log("Word Parser called\n");
 
 	if(node->subNode == 0) {
-		if(is_keyword(token->string)) {
 
-			node->subNode = parserNode_create(ParserNodeTypeStructural);
-		} else if(is_opcode(token->string)) {
+		if(is_opcode(token->string)) {
 
 			node->subNode = parserNode_create(ParserNodeTypeOpcode);
-		} else if(is_label(token->string)) {
-
-			node->parserNode.state = ParserNodeStateError;
-
-			// node->subNode = parserNode_create(ParserNodeTypeStructuralLabel)
 		} else {
 
+			//try to define a label
 			node->subNode = parserNode_create(ParserNodeTypeStructuralLabel);
 		}
 	}
 
-	if(node->parserNode.state != ParserNodeStateError) {
+	if(node->subNode != 0 && node->parserNode.state != ParserNodeStateError) {
 		node->subNode->parse(node->subNode, parser, token);
 		node->parserNode.state = node->subNode->state;
 	}

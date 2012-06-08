@@ -42,5 +42,5 @@ void emu_free(void *ptr) {
 }
 
 void emu_log(char *log) {
-	printf("%s", log);
+	printf("%s\n", log);
 }
