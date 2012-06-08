@@ -97,7 +97,7 @@ int parserNodeStructuralLabel_tokenTester(struct ParserNode *self, struct Parser
 // ### node parsers ###
 //#############################################################################
 void parserNode_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
-	emu_log("parsing token as default\n");
+	self->state = ParserStateError;
 }
 
 void parserNodeStructuralOrigin_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
@@ -178,37 +178,9 @@ void parserNode_emit(struct ParserNode *self, struct Parser *parser) {
 
 }
 
-void parserNodeStructuralOrigin_emit(struct ParserNode *self, struct Parser *parser) {
-
-}
-
-void parserNodeStructural_emit(struct ParserNode *self, struct Parser *parser) {
-
-}
-
-void parserNodeStructuralRegMode_emit(struct ParserNode *self, struct Parser *parser) {
-	
-}
-
-void parserNodeStructuralLabel_emit(struct ParserNode *self, struct Parser *parser) {
-	
-}
-
-void parserNodeWord_emit(struct ParserNode *self, struct Parser *parser) {
-
-}
-
-void parserNodeOpcode_emit(struct ParserNode *self, struct Parser *parser) {
-	
-}
-
-void parserNodeString_emit(struct ParserNode *self, struct Parser *parser) {
-	
-}
-
-void parserNodeNumber_emit(struct ParserNode *self, struct Parser *parser) {
-	
-}
+//#############################################################################
+// ### constructors ###
+//#############################################################################
 
 void *check_for_alloc(void * ptr, emu_size_t size) {
 
