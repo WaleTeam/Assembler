@@ -8,8 +8,10 @@ void emu_init();
 emu_ssize_t emu_read(int fh, void *buffer, emu_size_t size);
 emu_ssize_t emu_write(int fh, const void *buffer, emu_size_t size);
 
-void *emu_memcpy(void *dest, const void *src, emu_size_t n);
-void *emu_memset( void * ptr, int value, emu_size_t num );
+void *emu_memcpy(void *destination, const void *source, emu_size_t size);
+void *emu_memset(void *ptr, int value, emu_size_t size);
+
+char *emu_strncpy(char *destination, const char *source, emu_size_t size);
 
 void *emu_malloc(emu_size_t size);
 void *emu_realloc(void *ptr, emu_size_t size);

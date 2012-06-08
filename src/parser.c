@@ -98,6 +98,10 @@ void parserNodeStructuralRegMode_parse(struct ParserNode *self, struct Parser *p
 
 void parserNodeStructuralLabel_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {
 	emu_log("parsing token as label\n");
+
+	struct ParserNodeStructuralLabel *node = (struct ParserNodeStructuralLabel *)self;
+	emu_strncpy(node->labelName, token->string, kMaxStringLength);
+
 }
 
 void parserNodeWord_parse(struct ParserNode *self, struct Parser *parser, struct Token *token) {

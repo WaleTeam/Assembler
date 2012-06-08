@@ -21,12 +21,16 @@ emu_ssize_t emu_write(int fh, const void *buffer, emu_size_t size) {
 	return write (fh, buffer, size);
 }
 
-void *emu_memcpy(void *dest, const void *src, emu_size_t n) {
-	return memcpy(dest, src, n);
+void *emu_memcpy(void *destination, const void *source, emu_size_t size) {
+	return memcpy(destination, source, size);
 }
 
 void *emu_memset(void *ptr, int value, emu_size_t num) {
 	return memset(ptr, value, num);
+}
+
+char *emu_strncpy(char *destination, const char *source, emu_size_t size) {
+	return strncpy(destination, source, size);
 }
 
 void *emu_malloc(emu_size_t size) {
